@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement Prediction</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #00ffcc;
+            text-shadow: 0 0 10px #00ffcc;
+            margin-bottom: 20px;
+        }
+        
+        form {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 20px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        input,
+        select {
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        button {
+            grid-column: span 2;
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        #result {
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .recommendations {
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎓 Placement Prediction</h1>
+    <form id="placementForm">
+        <input type="text" id="branch" placeholder="Branch (e.g., CSE)" required>
+        <input type="text" id="gender" placeholder="Gender (M/F)" required>
+        <input type="number" id="year" placeholder="Year" required>
+        <input type="number" step="0.1" id="cgpa" placeholder="CGPA" required>
+        <input type="number" id="attendance" placeholder="Attendance %" required>
+        <input type="number" id="aptitude" placeholder="Aptitude Score" required>
+        <input type="number" id="technical" placeholder="Technical Score" required>
+        <input type="number" id="projects" placeholder="Projects Count" required>
+        <input type="number" id="internships" placeholder="Internships Count" required>
+        <input type="number" id="certs" placeholder="Certifications" required>
+        <input type="number" id="extra" placeholder="Extracurricular Score" required>
+        <input type="number" id="mock" placeholder="Mock Interview Score" required>
+        <input type="number" id="soft" placeholder="Softskill Rating" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById("placementForm");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async(e) => {
+                    e.preventDefault();
+
+                    const data = {
+                        branch: document.getElementById("branch").value,
+                        gender: document.getElementById("gender").value,
+                        year: document.getElementById("year").value,
+                        cgpa: document.getElementById("cgpa").value,
+                        attendance: document.getElementById("attendance").value,
+                        aptitude_score: document.getElementById("aptitude").value,
+                        technical_score: document.getElementById("technical").value,
+                        projects_count: document.getElementById("projects").value,
+                        internships_count: document.getElementById("internships").value,
+                        cert_count: document.getElementById("certs").value,
+                        extracurricular_score: document.getElementById("extra").value,
+                        mock_interview_score: document.getElementById("mock").value,
+                        softskill_rating: document.getElementById("soft").value
+                    };
+
+                    const response = await fetch("/predict", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const res = await response.json();
+
+                    if (res.status === "success") {
+                        resultDiv.innerHTML = `
+          <h2>${res.prediction === "Placed" ? "🎉 Congratulations!" : "❌ Not Placed"}</h2>
+          <p><b>Confidence:</b> ${res.confidence}%</p>
+          <div class="recommendations">
+            <h3>💡 Recommendations:</h3>
+            <ul>${res.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>
+          </div>
+        `;
+      } else {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${res.message}</p>`;
+      }
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Placement Prediction Result</title>
+    <style>
+        body {
+            background: url('https://wallpaperaccess.com/full/489659.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            text-align: center;
+            font-family: "Segoe UI", sans-serif;
+        }
+        
+        .result-box {
+            background-color: rgba(0, 0, 0, 0.75);
+            border-radius: 15px;
+            padding: 40px;
+            width: 50%;
+            margin: 150px auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+        }
+        
+        h1 {
+            color: #33ccff;
+        }
+        
+        h2 {
+            color: #00ff99;
+        }
+        
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="result-box">
+        <h1>Placement Prediction Result</h1>
+        <h2>Your Result is</h2>
+        {% if result == 1 %}
+        <p>🎉 Congratulations <span class="highlight">{{ name }}</span>!! You have a high chance of getting placed!</p>
+        {% else %}
+        <p>💡 Don't worry <span class="highlight">{{ name }}</span>! Keep improving and you'll get placed soon!</p>
+        {% endif %}
+        <p><strong>Placement Probability:</strong> {{ probability }}%</p>
+        <p><strong>Confidence Level:</strong> {{ confidence }}%</p>
+        <p><strong>Recommended Track:</strong> {{ track }}</p>
+        <p><strong>Next Step:</strong> {{ next_step }}</p>
+    </div>
+</body>
+
+</html>
