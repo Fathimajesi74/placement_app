@@ -1,5 +1,5 @@
 import numpy as np
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pickle
 import os
 model_path = os.path.join(os.path.dirname(__file__), 'placement_model.pkl')
@@ -11,43 +11,49 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
+@app.route('/home')
+def index():
+    return render_template('home.html')
+
+@app.route('/results')
+def results():
+    return render_template('result.html')
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-        name = request.form['name']
-        branch = request.form['branch']
-        gender = request.form['gender']
-        year = int(request.form['year'])
-        cgpa = float(request.form['cgpa'])
-        attendance = float(request.form['attendance_pct'])
-        aptitude = float(request.form['aptitude_score'])
-        technical = float(request.form['technical_score'])
-        comm = float(request.form['communication_score'])
-        projects = int(request.form['projects_count'])
-        internships = int(request.form['internships_count'])
-        certs = int(request.form['cert_count'])
-        extra = float(request.form['extracurricular_score'])
-        mock = float(request.form['mock_interview_score'])
-        soft = float(request.form['softskill_rating'])
-
+        data = request.get_json()  # ✅ Read JSON payload
+        cgpa = float(data['cgpa'])
+        projects = int(data['projects_count'])
+        internships = int(data['internships_count'])
+        certs = int(data['cert_count'])
+        extra = float(data['extracurricular_score'])
+        soft = float(data['softskill_rating'])
+        # name = request.form['name']
+        # branch = request.form['branch']
+        # gender = request.form['gender']
+        # year = int(request.form['year'])
+        # attendance = float(request.form['attendance_pct'])
+        # aptitude = float(request.form['aptitude_score'])
+        # technical = float(request.form['technical_score'])
+        # comm = float(request.form['communication_score'])
+        # mock = float(request.form['mock_interview_score'])
+        
         # Prepare input
-        features = np.array([[year, cgpa, attendance, aptitude, technical, comm,
-                              projects, internships, certs, extra, mock, soft]])
+        features = np.array([[cgpa, projects, internships, certs, extra, soft]])
         prediction = model.predict(features)[0]
-        probability = model.predict_proba(
-            features)[0][1] * 100  # Placement probability
+        probability = model.predict_proba(features)[0][1] * 100
         confidence = round(probability, 2)
-
         # Recommended track
-        if technical > 70 and aptitude > 65:
-            track = "Software Developer"
-        elif comm > 70:
-            track = "HR / Communication Specialist"
-        elif aptitude > 75:
-            track = "Data Analyst"
-        else:
-            track = "Technical Support / QA"
+        # if technical > 70 and aptitude > 65:
+        #     track = "Software Developer"
+        # elif comm > 70:
+        #     track = "HR / Communication Specialist"
+        # elif aptitude > 75:
+        #     track = "Data Analyst"
+        # else:
+        #     track = "Technical Support / QA"
 
         # Skill improvement suggestions
         if confidence < 50:
@@ -57,12 +63,17 @@ def predict():
         else:
             next_step = "Excellent! Keep practicing aptitude and technical tests."
 
+        return jsonify({
+            "status": "success",
+            "prediction": "Placed" if prediction == 1 else "Not Placed",
+            "confidence": confidence,
+            "recommendations": [next_step]
+        })
+
         return render_template(
             'result.html',
-            name=name,
             result=prediction,
             probability=round(probability, 2),
-            track=track,
             next_step=next_step,
             confidence=confidence
         )

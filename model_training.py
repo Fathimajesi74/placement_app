@@ -18,8 +18,10 @@ for col in ['branch', 'gender', 'placed_role']:
     label_encoders[col] = le
 
 # Define features (X) and target (y)
-X = df.drop(columns=['student_id', 'is_placed'])  # drop non-feature + target
+X = df[['cgpa', 'projects_count', 'internships_count', 'cert_count',
+        'extracurricular_score', 'softskill_rating']]
 y = df['is_placed']
+
 
 # Train/test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
